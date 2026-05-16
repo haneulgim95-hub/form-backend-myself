@@ -1,10 +1,13 @@
 import { UserCreateInput } from "../generated/prisma/models/User.ts";
 import prisma from "../config/prisma.ts";
 import { Prisma } from "../generated/prisma/client.ts";
+import { LoginInputType } from "../schemas/user/loginUser.ts";
+import passwordUtil from "../utils/password/passwordUtil.ts";
+import jwtUtil from "../utils/jwt/jwtUtil.ts";
 
 const createUser = async (data: UserCreateInput) => {
     try {
-        return prisma.user.create({
+        return await prisma.user.create({
             data,
         });
     } catch (error) {
@@ -24,10 +27,38 @@ const createUser = async (data: UserCreateInput) => {
             }
         }
         throw new Error("UNKNOWN_ERROR");
-
     }
+};
+
+const login = async (data: LoginInputType) => {
+        const user = await prisma.user.findUnique({
+            where: {
+                username: data.username,
+            },
+        });
+
+        if (!user || user.deletedAt) {
+            throw new Error("INVALID_CREDENTIALS");
+        }
+
+        const isValid = passwordUtil.verifyPassword(data.password, user.password);
+
+        if (!isValid) {
+            throw new Error("INVALID_CREDENTIALS");
+        }
+
+        // 로그인성공
+        const token = jwtUtil.generateToken(user.id);
+
+        const {password, deletedAt, ...safeUserInfo} = user;
+
+        return {
+            user: safeUserInfo,
+            token
+        }
 };
 
 export default {
     createUser,
+    login,
 };
