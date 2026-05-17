@@ -41,7 +41,7 @@ const login = async (data: LoginInputType) => {
             throw new Error("INVALID_CREDENTIALS");
         }
 
-        const isValid = passwordUtil.verifyPassword(data.password, user.password);
+        const isValid = await passwordUtil.verifyPassword(data.password, user.password);
 
         if (!isValid) {
             throw new Error("INVALID_CREDENTIALS");
