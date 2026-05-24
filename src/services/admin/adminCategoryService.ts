@@ -1,5 +1,4 @@
 import prisma from "../../config/prisma.ts";
-import { Request, Response } from "express";
 import {
     CategoryCreateInput,
     CategoryUpdateInput,

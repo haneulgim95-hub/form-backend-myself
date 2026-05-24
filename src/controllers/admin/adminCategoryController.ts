@@ -9,7 +9,7 @@ import { CategoryStatus } from "../../generated/prisma/enums.ts";
 
 const getCategoryList = async (req: Request, res: Response) => {
     try {
-        const result = await adminCategoryService.getCategoryList;
+        const result = await adminCategoryService.getCategoryList();
         res.status(200).json({
             message: "카테고리 목록을 성공적으로 불러왔습니다.",
             data: result,
