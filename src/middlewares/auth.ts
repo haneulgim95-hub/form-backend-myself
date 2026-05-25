@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwtUtil from "../utils/jwt/jwtUtil.ts";
 import jwt from "jsonwebtoken";
 import { RoleType, User } from "../generated/prisma/client.ts";
-import userService from "../services/userService.ts";
 
 interface AuthRequest extends Request {
     user?: User;
@@ -26,7 +25,6 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
         const decoded = jwtUtil.verifyToken(token);
 
-        const user = await userService.getUserById(decoded.id);
 
         if (!user || user.deletedAt) {
             res.status(401).json({ message: "유효하지 않은 사용자이거나 탈퇴한 계정입니다." });
