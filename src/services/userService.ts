@@ -30,6 +30,18 @@ const createUser = async (data: UserCreateInput) => {
     }
 };
 
+const getUserById = async (id: number) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id,
+        }
+    })
+    if (!user) {
+        throw new Error("USER_NOT_FOUND");
+    }
+    return user;
+}
+
 const login = async (data: LoginInputType) => {
         const user = await prisma.user.findUnique({
             where: {
@@ -61,4 +73,5 @@ const login = async (data: LoginInputType) => {
 export default {
     createUser,
     login,
+    getUserById,
 };
