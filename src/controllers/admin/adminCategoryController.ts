@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import adminCategoryService from "../../services/admin/adminCategoryService.ts";
-import { AdminCreateCategoryInputType } from "../../schemas/category/createCategory.ts";
+import { AdminCreateCategoryInputType } from "../../schemas/admin/category/createCategory.ts";
 import {
     CategoryCreateInput,
     CategoryUpdateInput,

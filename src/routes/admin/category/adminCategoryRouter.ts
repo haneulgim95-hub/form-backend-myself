@@ -1,8 +1,8 @@
 import { Router } from "express";
 import adminCategoryController from "../../../controllers/admin/adminCategoryController.ts";
 import { validate } from "../../../middlewares/validate.ts";
-import { adminCreateCategorySchema } from "../../../schemas/category/createCategory.ts";
-import { adminUpdateCategorySchema } from "../../../schemas/category/updateCategory.ts";
+import { adminCreateCategorySchema } from "../../../schemas/admin/category/createCategory.ts";
+import { adminUpdateCategorySchema } from "../../../schemas/admin/category/updateCategory.ts";
 
 const router = Router();
 
