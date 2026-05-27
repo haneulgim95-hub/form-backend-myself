@@ -6,6 +6,7 @@ import userRouter from "./routes/userRouter.ts";
 import cors from "cors";
 import adminRouter from "./routes/admin/adminRouter.ts";
 import { authenticate, requiredAdmin } from "./middlewares/auth.ts";
+import categoryRouter from "./routes/categoryRouter.ts";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
 app.use("/admin", authenticate, requiredAdmin, adminRouter);
+app.use("category", categoryRouter)
 
 app.listen(PORT, () => {
     console.log(`서버가 실행되었습니다 http://localhost:${PORT}`);
