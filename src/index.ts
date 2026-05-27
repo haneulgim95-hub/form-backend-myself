@@ -6,6 +6,8 @@ import userRouter from "./routes/userRouter.ts";
 import cors from "cors";
 import adminRouter from "./routes/admin/adminRouter.ts";
 import { authenticate, requiredAdmin } from "./middlewares/auth.ts";
+import categoryRouter from "./routes/categoryRouter.ts";
+import postRouter from "./routes/postRouter.ts";
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRouter);
+app.use("/category", categoryRouter);
+app.use("/post", postRouter);
 app.use("/admin", authenticate, requiredAdmin, adminRouter);
 
 app.listen(PORT, () => {

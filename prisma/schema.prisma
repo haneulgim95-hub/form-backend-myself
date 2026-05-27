@@ -41,6 +41,7 @@ model User {
   birthdate   DateTime?
   gender      GenderType
   role        RoleType   @default(USER)
+  posts       Post[]
 }
 
 model Category {
@@ -49,4 +50,20 @@ model Category {
   updatedAt DateTime       @updatedAt
   name      String         @unique
   status    CategoryStatus @default(ACTIVE)
+  posts     Post[]
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  title     String
+  content   String    @db.Text
+  views     Int       @default(0)
+
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
 }
