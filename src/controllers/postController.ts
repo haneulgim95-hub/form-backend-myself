@@ -23,6 +23,25 @@ const getPostsByCategory = async (req: Request<{ categoryId: string }>, res: Res
     }
 };
 
+const getPostById = async (req: AuthRequest<{id: string}>, res: Response) => {
+    try {
+        const postId = Number(req.params.id);
+        if (isNaN(postId)) {
+            res.status(400).json({ message: "유효하지 않은 게시글 ID 입니다."});
+            return;
+        }
+
+        const userId = req.user?.id;
+
+        const post = await postService.getPostById(postId, userId);
+        res.status(200).json({ message: "게시글을 성공적으로 불러왔습니다.", data: post });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "서버 에러가 발생했습니다."});
+    }
+};
+
+
 const createPost = async (req: AuthRequest, res: Response) => {
     try {
         const user = req.user;
@@ -50,4 +69,4 @@ const createPost = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export default { getPostsByCategory, createPost };
+export default { getPostsByCategory, createPost, getPostById };

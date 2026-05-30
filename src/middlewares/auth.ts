@@ -3,8 +3,15 @@ import jwtUtil from "../utils/jwt/jwtUtil.ts";
 import jwt from "jsonwebtoken";
 import { RoleType, User } from "../generated/prisma/client.ts";
 import userService from "../services/userService.ts";
+import * as core from "express-serve-static-core";
 
-export interface AuthRequest extends Request {
+export interface AuthRequest<
+    P = core.ParamsDictionary,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = core.Query,
+    Locals extends Record<string, any> = Record<string, any>,
+> extends Request<P, ResBody, ReqBody, ReqQuery, Locals> {
     user?: User;
 }
 
@@ -52,6 +59,36 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
         res.status(500).json({ message: "인증 처리 중 서버 에러가 발생되었습니다." });
     }
 };
+
+export const checkUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return next();
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        if (!token) {
+            return next();
+        }
+
+        const decoded = jwtUtil.verifyToken(token);
+
+        const user = await userService.getUserById(decoded.id);
+
+        if (!user || user.deletedAt) {
+            return next();
+        }
+
+        req.user = user;
+
+        next();
+    } catch (error) {
+        next();
+    }
+}
 
 export const requiredAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
