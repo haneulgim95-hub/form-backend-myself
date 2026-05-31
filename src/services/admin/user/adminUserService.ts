@@ -2,12 +2,25 @@ import prisma from "../../../config/prisma.ts";
 import { UserCreateInput, UserUpdateInput } from "../../../generated/prisma/models/User.ts";
 import { Prisma } from "../../../generated/prisma/client.ts";
 
-const getUserList = async () => {
-    return prisma.user.findMany({
+const getUserList = async (page: number, size: number) => {
+    const skip = (page - 1) * size;
+    const take = size;
+    const total = await prisma.user.count();
+
+    const list = await prisma.user.findMany({
         orderBy: {
             id: "desc",
         },
+        skip,
+        take,
     });
+
+    return {
+        page,
+        size,
+        total,
+        list,
+    }
 };
 
 const getUserById = async (id: number) => {

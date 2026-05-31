@@ -9,7 +9,9 @@ import { AdminUpdateUserInputType } from "../../../schemas/admin/user/updateUser
 
 const getUserList = async (req: Request, res: Response) => {
     try {
-        const result = await adminUserService.getUserList();
+        const page = Number(req.query.page) || 1;
+        const size = Number(req.query.size) || 20;
+        const result = await adminUserService.getUserList(page, size);
         res.status(200).json({ message: "유저 목록을 성공적으로 불러왔습니다.", data: result });
     } catch (error) {
         console.log(error);
