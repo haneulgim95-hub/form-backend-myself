@@ -42,6 +42,8 @@ model User {
   gender      GenderType
   role        RoleType   @default(USER)
   posts       Post[]
+  votes       Vote[]
+  replies     Reply[]
 }
 
 model Category {
@@ -54,16 +56,50 @@ model Category {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  title     String
-  content   String    @db.Text
-  views     Int       @default(0)
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  title       String
+  content     String    @db.Text
+  views       Int       @default(0)
+  option1Text String?
+  option2Text String?
 
   userId     Int
   user       User     @relation(fields: [userId], references: [id])
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
+
+  votes   Vote[]
+  replies Reply[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  option    Int
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model Reply {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String   @db.Text
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+
+  @@index([userId])
+  @@index([postId])
 }
