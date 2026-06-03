@@ -157,5 +157,28 @@ const votePost = async (userId: number, postId: number, option: number) => {
     })
 };
 
+const cancelVotePost = async (userId: number, postId: number) => {
+    const existingVote = await prisma.vote.findUnique({
+        where: {
+            userId_postId: {
+                userId, postId
+            }
+        }
+    })
+    if(!existingVote) {
+        throw new Error("NOT FOUND");
+    }
 
-export default { getPostsByCategory, createPost, getPostById, votePost };
+    prisma.vote.delete({
+        where: {
+            userId_postId: {
+                userId, postId
+            }
+        }
+    })
+
+    return;
+};
+
+
+export default { getPostsByCategory, createPost, getPostById, votePost, cancelVotePost };

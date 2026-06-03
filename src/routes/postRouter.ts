@@ -11,6 +11,6 @@ router.get("/list/:categoryId", postController.getPostsByCategory);
 router.get("/:id", checkUser, postController.getPostById);
 router.post("/create", authenticate, validate(createPostSchema), postController.createPost);
 router.post("/:postId/vote", authenticate, validate(votePostSchema), postController.votePost);
-// votePost 기능을 만드려면 필요한것... userId, postId, option
+router.delete("/:postId/vote", authenticate, postController.cancelVotePost )
 
 export default router;

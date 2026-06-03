@@ -107,4 +107,28 @@ const votePost = async (req: AuthRequest<{postId: string}>, res: Response) => {
     }
 };
 
-export default { getPostsByCategory, createPost, getPostById, votePost };
+const cancelVotePost = async (req: AuthRequest<{postId: string}>, res: Response) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ message: "인증되지 않은 사용자입니다." });
+            return;
+        }
+        const userId = req.user.id;
+
+        const postId = Number(req.params.postId);
+        if (isNaN(postId)) {
+            res.status(400).json({ message: "유효하지 않은 게시글 ID 입니다." });
+            return;
+        }
+        await postService.cancelVotePost(userId, postId);
+        res.status(200).json({ message: "투표가 취소되었습니다."});
+    } catch (error) {
+        if (error instanceof Error && error.message === "NOT_VOTED") {
+            res.status(404).json({ message: "취소할 투표 내용이 존재하지 않습니다." });
+        }
+        console.log(error);
+        res.status(500).json({ message: "투표 취소 중 서버 에러가 발생했습니다." });
+    }
+};
+
+export default { getPostsByCategory, createPost, getPostById, votePost, cancelVotePost };
