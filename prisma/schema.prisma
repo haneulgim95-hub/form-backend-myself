@@ -43,6 +43,7 @@ model User {
   role        RoleType   @default(USER)
   posts       Post[]
   votes       Vote[]
+  replies     Reply[]
 }
 
 model Category {
@@ -70,6 +71,7 @@ model Post {
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
   votes      Vote[]
+  replies    Reply[]
 }
 
 model Vote {
@@ -84,6 +86,21 @@ model Vote {
   post   Post @relation(fields: [postId], references: [id])
 
   @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model Reply {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String   @db.Text
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
   @@index([userId])
   @@index([postId])
 }

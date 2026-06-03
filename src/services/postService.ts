@@ -166,10 +166,10 @@ const cancelVotePost = async (userId: number, postId: number) => {
         }
     })
     if(!existingVote) {
-        throw new Error("NOT FOUND");
+        throw new Error("NOT_VOTED");
     }
 
-    prisma.vote.delete({
+    await prisma.vote.delete({
         where: {
             userId_postId: {
                 userId, postId
