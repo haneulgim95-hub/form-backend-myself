@@ -47,4 +47,37 @@ const createReply = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export default { createReply, getRepliesByPostId };
+const deleteReply = async (req: AuthRequest<{replyId: string}>, res: Response) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ message: "로그인이 필요한 서비스입니다."});
+            return;
+        }
+        const userId = req.user.id;
+
+        const id = Number(req.params.replyId);
+        if (isNaN(id)) {
+            res.status(400).json({ message: "유효하지 않은 댓글 ID입니다."});
+            return;
+        }
+
+        await replyService.deleteReply(userId, id);
+        res.status(200).json({ message: "댓글이 성공적으로 삭제되었습니다."})
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "NOT_FOUND_REPLY") {
+                res.status(404).json({ message: "존재하지 않는 댓글입니다."});
+                return;
+            }
+            if (error.message === "FORBIDDEN") {
+                res.status(403).json({ message: "댓글 삭제 권한이 없습니다."});
+                return;
+            }
+        }
+        console.log(error);
+        res.status(500).json({ message: "댓글 삭제 중 서버 오류가 발생되었습니다."});
+    }
+
+};
+
+export default { createReply, getRepliesByPostId, deleteReply };

@@ -67,4 +67,25 @@ const createReply = async (userId: number, postId: number, content: string) => {
     });
 };
 
-export default { createReply, getRepliesByPostId};
+const deleteReply = async (userId: number, replyId: number) => {
+    const reply = await prisma.reply.findUnique({
+        where: {
+            id: replyId,
+        }
+    })
+
+    if (!reply) {
+        throw new Error("NOT_FOUND_REPLY");
+    }
+
+    if (reply.userId !== userId) {
+        throw new Error("FORBIDDEN");
+    }
+
+    return prisma.reply.delete({
+        where: {
+            id: replyId,
+        }
+    })
+}
+export default { createReply, getRepliesByPostId, deleteReply};
