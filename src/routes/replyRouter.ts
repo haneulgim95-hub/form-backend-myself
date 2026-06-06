@@ -10,7 +10,8 @@ const router = Router();
 router.post("/create", authenticate, validate(createReplySchema), replyController.createReply)
 router.get("/:postId", replyController.getRepliesByPostId);
 router.delete("/:replyId", authenticate, replyController.deleteReply);
-router.patch("/:replyId", authenticate, validate(updateReplySchema), replyController.updateReply);
-// 댓글을 수정할때 필요한것: replyId,
+// router.patch("/:replyId", authenticate, validate(updateReplySchema), replyController.updateReply);
+router.patch("/update", authenticate, validate(updateReplySchema), replyController.updateReply);
+// 댓글을 수정할때 필요한것: replyId, content, userId,
 
 export default router;

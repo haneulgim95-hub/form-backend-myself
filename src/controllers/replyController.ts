@@ -48,14 +48,8 @@ const createReply = async (req: AuthRequest, res: Response) => {
     }
 };
 
-const updateReply = async (req: AuthRequest<{replyId: string}>, res: Response) => {
+const updateReply = async (req: AuthRequest, res: Response) => {
     try {
-        const replyId = Number(req.params.replyId);
-        if (isNaN(replyId)) {
-            res.status(400).json({ message: "유효하지 않은 댓글 ID 입니다."});
-            return;
-        }
-
         if (!req.user) {
             res.status(401).json({ message: "로그인이 필요한 서비스입니다."});
             return;
@@ -63,8 +57,8 @@ const updateReply = async (req: AuthRequest<{replyId: string}>, res: Response) =
 
         const userId = req.user.id;
 
-        const { content }: UpdateReplyInputType = req.body;
-        const result = await replyService.updateReply(replyId, userId, content);
+        const { content, id }: UpdateReplyInputType = req.body;
+        const result = await replyService.updateReply(userId, content, id);
         res.status(200).json({ message: "댓글이 성공적으로 수정 되었습니다.", data: result });
     } catch (error) {
         if (error instanceof Error) {

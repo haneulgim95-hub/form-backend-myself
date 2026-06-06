@@ -67,10 +67,10 @@ const createReply = async (userId: number, postId: number, content: string) => {
     });
 };
 
-const updateReply = async (replyId: number, userId: number, content: string) => {
+const updateReply = async (userId: number, content: string, id: number) => {
     const reply = await prisma.reply.findUnique({
         where: {
-            id: replyId,
+            id
         }
     })
     if (!reply) {
@@ -83,7 +83,7 @@ const updateReply = async (replyId: number, userId: number, content: string) => 
 
     return prisma.reply.update({
         where: {
-            id: replyId
+            id
         },
         data: {
             content,
