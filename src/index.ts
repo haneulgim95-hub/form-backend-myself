@@ -26,7 +26,7 @@ app.use("/user", userRouter);
 app.use("/category", categoryRouter);
 app.use("/post", postRouter);
 app.use("/reply", replyRouter);
-app.use("/admin", authenticate, requiredAdmin, adminRouter);
+app.use("/admin", adminRouter);
 
 app.listen(PORT, () => {
     console.log(`서버가 실행되었습니다 http://localhost:${PORT}`);

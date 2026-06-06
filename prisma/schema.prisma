@@ -104,3 +104,11 @@ model Reply {
   @@index([userId])
   @@index([postId])
 }
+
+model Notice {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  content   String   @db.Text
+}
