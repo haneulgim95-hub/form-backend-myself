@@ -9,7 +9,8 @@
         "prisma:migrate": "prisma migrate dev",
         "prisma:generate": "prisma generate",
         "seed:post": "tsx seed/post.ts",
-        "seed:reply": "tsx seed/reply.ts"
+        "seed:reply": "tsx seed/reply.ts",
+        "seed:vote": "tsx seed/vote.ts"
     },
     "keywords": [],
     "author": "",
