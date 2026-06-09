@@ -1,5 +1,24 @@
 import prisma from "../config/prisma.ts";
 
+const getNoticeList = async (page: number, size: number) => {
+    const total = await prisma.notice.count();
+
+    const list = await prisma.notice.findMany({
+        orderBy: {
+            id: "desc"
+        },
+        skip: (page - 1) * size,
+        take: size,
+    })
+
+    return {
+        total,
+        page,
+        size,
+        list,
+    }
+};
+
 const getNoticeById = async (noticeId: number) => {
     const notice = await prisma.notice.findUnique({
         where: {
@@ -45,4 +64,4 @@ const deleteNotice = async (noticeId: number) => {
     })
 };
 
-export default {createNotice, updateNotice, deleteNotice};
+export default {getNoticeList, getNoticeById, createNotice, updateNotice, deleteNotice};
