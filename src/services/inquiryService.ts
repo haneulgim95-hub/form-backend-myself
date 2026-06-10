@@ -28,4 +28,39 @@ const getInquiryList = async (page: number, size: number) => {
     };
 };
 
-export default { getInquiryList };
+const getInquiryByID = async (inquiryId: number) => {
+    const inquiry = await prisma.inquiry.findUnique({
+        where: {
+            id: inquiryId,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    nickname: true,
+                }
+            }
+        }
+    });
+
+    if (!inquiry) throw new Error("NOT_FOUND_INQUIRY");
+
+    return inquiry;
+};
+
+const answerInquiry = async (inquiryId: number, answer?: string) => {
+    await getInquiryByID(inquiryId);
+
+    return prisma.inquiry.update({
+        where: {
+            id: inquiryId,
+        },
+        data: {
+            answer: answer? answer : null,
+            answeredAt: answer ? new Date() : null,
+        },
+    });
+};
+
+export default { getInquiryList, getInquiryByID, answerInquiry };

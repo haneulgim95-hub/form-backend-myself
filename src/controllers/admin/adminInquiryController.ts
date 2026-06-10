@@ -1,5 +1,6 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import inquiryService from "../../services/inquiryService.ts";
+import { InquiryAnswerInputType } from "../../schemas/inquiry/InquiryAnswerSchema.ts";
 
 const getInquiryList = async (req: Request, res: Response) => {
     try {
@@ -16,6 +17,73 @@ const getInquiryList = async (req: Request, res: Response) => {
     }
 };
 
+const getInquiryById = async (req: Request<{ inquiryId: string }>, res: Response) => {
+    try {
+        const inquiryId = Number(req.params.inquiryId);
+        if (isNaN(inquiryId)) {
+            return res.status(400).json({ message: "유효하지 않은 문의글 ID 입니다." });
+        }
+
+        const result = await inquiryService.getInquiryByID(inquiryId);
+        res.status(200).json({ message: "문의글을 조회하는데 성공했습니다.", data: result });
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "NOT_FOUND_INQUIRY")
+                res.status(404).json({ message: "존재하지 않거나 삭제된 문의글입니다." });
+        }
+
+        console.log(error);
+        res.status(500).json({
+            message: "문의글 조회 중 서버 오류가 발생되었습니다.",
+        });
+    }
+};
+
+const answerInquiry = async (req: Request<{ inquiryId: string }>, res: Response) => {
+    try {
+        const inquiryId = Number(req.params.inquiryId);
+        if (isNaN(inquiryId)) {
+            return res.status(400).json({ message: "유효하지 않은 문의글 ID 입니다." });
+        }
+
+        const { answer }: InquiryAnswerInputType = req.body;
+
+        const result = await inquiryService.answerInquiry(inquiryId, answer);
+        res.status(200).json({ message: "문의글 답변 작업 성공", data: result });
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "NOT_FOUND_INQUIRY")
+                res.status(404).json({ message: "존재하지 않거나 삭제된 문의글입니다." });
+        }
+
+        console.log(error);
+        res.status(500).json({
+            message: "문의글 조회 중 서버 오류가 발생되었습니다.",
+        });
+    }
+};
 
 
-export default { getInquiryList };
+const deleteAnswer = async (req: Request<{ inquiryId: string }>, res: Response) => {
+    try {
+        const inquiryId = Number(req.params.inquiryId);
+        if (isNaN(inquiryId)) {
+            return res.status(400).json({ message: "유효하지 않은 문의글 ID 입니다." });
+        }
+
+        await inquiryService.answerInquiry(inquiryId);
+        res.status(200).json({ message: "문의글 답변 삭제 성공"});
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "NOT_FOUND_INQUIRY")
+                res.status(404).json({ message: "존재하지 않거나 삭제된 문의글입니다." });
+        }
+
+        console.log(error);
+        res.status(500).json({
+            message: "문의글 삭제 중 서버 오류가 발생되었습니다.",
+        });
+    }
+}
+
+export default { getInquiryList, getInquiryById, answerInquiry, deleteAnswer };
