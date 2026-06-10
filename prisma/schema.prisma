@@ -120,7 +120,7 @@ model Inquiry {
   updatedAt  DateTime  @updatedAt
   title      String
   content    String    @db.Text
-  answer     String
+  answer     String?
   answeredAt DateTime?
 
   userId Int

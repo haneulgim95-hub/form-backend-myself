@@ -1,7 +1,10 @@
 import prisma from "../config/prisma.ts";
 
-const getInquiryList = async (page: number, size: number) => {
-    const total = await prisma.inquiry.count();
+const getInquiryList = async (page: number, size: number, userId?: number) => {
+    const whereCondition = userId ? { userId } : {};
+    const total = await prisma.inquiry.count({
+        where: whereCondition,
+    });
 
     const list = await prisma.inquiry.findMany({
         orderBy: {
@@ -9,6 +12,7 @@ const getInquiryList = async (page: number, size: number) => {
         },
         skip: (page - 1) * size,
         take: size,
+        where: whereCondition,
         include: {
             user: {
                 select: {
@@ -63,4 +67,52 @@ const answerInquiry = async (inquiryId: number, answer?: string) => {
     });
 };
 
-export default { getInquiryList, getInquiryByID, answerInquiry };
+const createInquiry = async (userId: number, title: string, content: string) => {
+    return prisma.inquiry.create({
+        data: {
+            title,
+            content,
+            userId,
+        }
+    })
+};
+
+const validateInquiryEditable = async (inquiryId: number, userId: number) => {
+    const inquiry = await getInquiryByID(inquiryId);
+
+    if (userId !== inquiry.userId) {
+        throw new Error("NOT_YOUR_INQUIRY");
+    }
+
+    if (inquiry.answer) {
+        throw new Error("ALREADY_ANSWERED_INQUIRY");
+    }
+    return inquiry;
+};
+
+const updateInquiry = async (inquiryId: number, userId: number, title: string, content: string) => {
+    await validateInquiryEditable(inquiryId, userId);
+
+    return prisma.inquiry.update({
+        where: {
+            id: inquiryId,
+        },
+        data: {
+            title,
+            content,
+        }
+    })
+}
+
+const deleteInquiry = async (inquiryId: number, userId: number) => {
+    await validateInquiryEditable(inquiryId, userId);
+
+    return prisma.inquiry.delete({
+        where: {
+            id: inquiryId,
+        }
+    })
+};
+
+export default { getInquiryList, getInquiryByID, answerInquiry, createInquiry, updateInquiry, deleteInquiry };
+
