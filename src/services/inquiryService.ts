@@ -115,4 +115,4 @@ const deleteInquiry = async (inquiryId: number, userId: number) => {
 };
 
 export default { getInquiryList, getInquiryByID, answerInquiry, createInquiry, updateInquiry, deleteInquiry };
-
+// dd
