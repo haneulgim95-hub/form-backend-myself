@@ -4,6 +4,7 @@ import { Prisma } from "../generated/prisma/client.ts";
 import { LoginInputType } from "../schemas/user/loginUser.ts";
 import passwordUtil from "../utils/password/passwordUtil.ts";
 import jwtUtil from "../utils/jwt/jwtUtil.ts";
+import { UpdateUserInputType } from "../schemas/user/updateUserSchema.ts";
 
 const createUser = async (data: UserCreateInput) => {
     try {
@@ -70,8 +71,58 @@ const login = async (data: LoginInputType) => {
         }
 };
 
+const updateUser = async (userId: number, input: UpdateUserInputType) => {
+    const existUser = await prisma.user.findFirst({
+        where: {
+            id: userId,
+            deletedAt: null,
+        }
+    })
+    if (!existUser) {
+        throw new Error("USER_NOT_FOUND");
+    }
+
+    const existNickname = await prisma.user.findFirst({
+        where: {
+            nickname: input.nickname,
+            deletedAt: null,
+            id: {
+                not: userId,
+            }
+        }
+    })
+    if (existNickname) {
+        throw new Error("ALREADY_EXISTS_NICKNAME");
+    }
+
+    const existEmail = await prisma.user.findFirst({
+        where: {
+            email: input.email,
+            deletedAt: null,
+            id: {
+                not: userId,
+            }
+        },
+    });
+    if (existEmail) {
+        throw new Error("ALREADY_EXISTS_EMAIL");
+    }
+
+    return prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            nickname: input.nickname,
+            email: input.email,
+            phoneNumber: input.phoneNumber ?? null,
+        }
+    })
+};
+
 export default {
     createUser,
     login,
     getUserById,
+    updateUser,
 };

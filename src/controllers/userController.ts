@@ -3,6 +3,8 @@ import { UserCreateInput } from "../generated/prisma/models/User.ts";
 import userService from "../services/userService.ts";
 import passwordUtil from "../utils/password/passwordUtil.ts";
 import { LoginInputType } from "../schemas/user/loginUser.ts";
+import { AuthRequest } from "../middlewares/auth.ts";
+import { UpdateUserInputType } from "../schemas/user/updateUserSchema.ts";
 
 const createUser = async (req: Request, res: Response) => {
     try {
@@ -68,7 +70,25 @@ const login = async (req: Request, res: Response) => {
     }
 };
 
+const updateUser = async (req: AuthRequest, res: Response) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ message: "인증되지 않은 사용자입니다."});
+            return;
+        }
+        const userId = req.user.id;
+
+        const input: UpdateUserInputType = req.body;
+
+        const result = await userService.updateUser(userId, input);
+        res.status(200).json({ message: "사용자 정보를 성공적으로 수정했습니다.", data: result });
+    } catch (error) {
+
+    }
+};
+
 export default {
     createUser,
-    login
+    login,
+    updateUser,
 };
