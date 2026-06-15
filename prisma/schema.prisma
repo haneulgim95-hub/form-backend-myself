@@ -44,6 +44,7 @@ model User {
   posts       Post[]
   votes       Vote[]
   replies     Reply[]
+  inquiries   Inquiry[]
 }
 
 model Category {
@@ -111,4 +112,29 @@ model Notice {
   updatedAt DateTime @updatedAt
   title     String
   content   String   @db.Text
+}
+
+model Inquiry {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  title     String
+  content   String    @db.Text
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  answers   Answer[]
+
+  @@index([userId])
+}
+
+model Answer {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String   @db.Text
+  inquiryId Int
+  inquiry   Inquiry  @relation(fields: [inquiryId], references: [id])
+
+  @@index([inquiryId])
 }
