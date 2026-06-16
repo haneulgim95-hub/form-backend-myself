@@ -16,7 +16,7 @@ const getMe = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json({
         message: "사용자 정보 확인이 완료되었습니다.",
-        data: req.params,
+        data: req.user,
     });
 };
 
