@@ -6,6 +6,7 @@ import { loginSchema } from "../schemas/user/loginUser.ts";
 import { updateUserSchema } from "../schemas/user/updateUserSchema.ts";
 import { authenticate } from "../middlewares/auth.ts";
 import { updatePasswordSchema } from "../schemas/user/updatePasswordSchema.ts";
+import { withdrawUserSchema } from "../schemas/user/witherawUserSchema.ts";
 
 const router = Router();
 
@@ -18,5 +19,7 @@ router.patch(
     validate(updatePasswordSchema),
     userController.updatePassword,
 );
+router.patch("/withdraw", authenticate, validate(withdrawUserSchema), userController.withdrawUser);
+
 
 export default router;
