@@ -1,6 +1,33 @@
 import prisma from "../config/prisma.ts";
 import { PostCreateInput } from "../generated/prisma/models/Post.ts";
 
+const getRecentPosts = async () => {
+    return prisma.post.findMany({
+        orderBy: {
+            createdAt: "desc",
+        },
+        where: {
+            deletedAt: null,
+        },
+        take: 20,
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    nickname: true,
+                    email: true,
+                },
+            },
+            category: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+    });
+};
+
 const getPostsByCategory = async (categoryId: number, page: number, size: number) => {
     const skip = (page - 1) * size;
     const take = size;
@@ -127,7 +154,7 @@ const votePost = async (userId: number, postId: number, option: number) => {
         where: {
             id: postId,
             deletedAt: null,
-        }
+        },
     });
     if (!post) {
         throw new Error("NOT FOUND");
@@ -140,11 +167,12 @@ const votePost = async (userId: number, postId: number, option: number) => {
     const existingVote = await prisma.vote.findUnique({
         where: {
             userId_postId: {
-                userId, postId
-            }
-        }
-    })
-    if(existingVote) {
+                userId,
+                postId,
+            },
+        },
+    });
+    if (existingVote) {
         throw new Error("ALREADY_VOTED");
     }
 
@@ -152,33 +180,41 @@ const votePost = async (userId: number, postId: number, option: number) => {
         data: {
             userId,
             postId,
-            option
-        }
-    })
+            option,
+        },
+    });
 };
 
 const cancelVotePost = async (userId: number, postId: number) => {
     const existingVote = await prisma.vote.findUnique({
         where: {
             userId_postId: {
-                userId, postId
-            }
-        }
-    })
-    if(!existingVote) {
+                userId,
+                postId,
+            },
+        },
+    });
+    if (!existingVote) {
         throw new Error("NOT_VOTED");
     }
 
     await prisma.vote.delete({
         where: {
             userId_postId: {
-                userId, postId
-            }
-        }
-    })
+                userId,
+                postId,
+            },
+        },
+    });
 
     return;
 };
 
-
-export default { getPostsByCategory, createPost, getPostById, votePost, cancelVotePost };
+export default {
+    getRecentPosts,
+    getPostsByCategory,
+    createPost,
+    getPostById,
+    votePost,
+    cancelVotePost,
+};

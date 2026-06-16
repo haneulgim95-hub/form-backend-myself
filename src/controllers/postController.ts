@@ -5,6 +5,21 @@ import { AuthRequest } from "../middlewares/auth.ts";
 import postService from "../services/postService.ts";
 import { VotePostInputType } from "../schemas/post/votePostSchema.ts";
 
+const getRecentPosts = async (req: AuthRequest, res: Response) => {
+    try {
+        const result = await postService.getRecentPosts();
+        res.status(200).json({
+            message: "최근 게시글 목록을 성공적으로 조회했습니다.",
+            data: result,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "최근 게시글 목록을 조회하는 중 서버에러가 발생했습니다.",
+        });
+    }
+};
+
 const getPostsByCategory = async (req: Request<{ categoryId: string }>, res: Response) => {
     try {
         const categoryId = Number(req.params.categoryId);
@@ -24,11 +39,11 @@ const getPostsByCategory = async (req: Request<{ categoryId: string }>, res: Res
     }
 };
 
-const getPostById = async (req: AuthRequest<{id: string}>, res: Response) => {
+const getPostById = async (req: AuthRequest<{ id: string }>, res: Response) => {
     try {
         const postId = Number(req.params.id);
         if (isNaN(postId)) {
-            res.status(400).json({ message: "유효하지 않은 게시글 ID 입니다."});
+            res.status(400).json({ message: "유효하지 않은 게시글 ID 입니다." });
             return;
         }
 
@@ -38,16 +53,15 @@ const getPostById = async (req: AuthRequest<{id: string}>, res: Response) => {
         res.status(200).json({ message: "게시글을 성공적으로 불러왔습니다.", data: post });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "서버 에러가 발생했습니다."});
+        res.status(500).json({ message: "서버 에러가 발생했습니다." });
     }
 };
-
 
 const createPost = async (req: AuthRequest, res: Response) => {
     try {
         const user = req.user;
         if (!user) {
-            res.status(401).json({ message: "로그인이 필요한 서비스입니다."});
+            res.status(401).json({ message: "로그인이 필요한 서비스입니다." });
             return;
         }
 
@@ -59,34 +73,34 @@ const createPost = async (req: AuthRequest, res: Response) => {
             option1Text: option1Text ?? null,
             option2Text: option2Text ?? null,
             category: { connect: { id: categoryId } },
-            user: { connect: { id: user.id}},
+            user: { connect: { id: user.id } },
         };
 
         const newData = await postService.createPost(input);
         res.status(201).json({ message: "게시글이 성공적으로 작성되었습니다.", data: newData });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "게시글 작성 중 서버에러가 발생했습니다."});
+        res.status(500).json({ message: "게시글 작성 중 서버에러가 발생했습니다." });
     }
 };
 
-const votePost = async (req: AuthRequest<{postId: string}>, res: Response) => {
+const votePost = async (req: AuthRequest<{ postId: string }>, res: Response) => {
     try {
         if (!req.user) {
-            res.status(401).json({ message: "인증되지 않은 사용자입니다."});
+            res.status(401).json({ message: "인증되지 않은 사용자입니다." });
             return;
         }
         const userId = req.user.id;
 
         const postId = Number(req.params.postId);
         if (isNaN(postId)) {
-            res.status(400).json({message: "유효하지 않은 게시글 ID 입니다."});
+            res.status(400).json({ message: "유효하지 않은 게시글 ID 입니다." });
             return;
         }
 
         const { option }: VotePostInputType = req.body;
         await postService.votePost(userId, postId, option);
-        res.status(200).json({ message: "투표가 성공적으로 진행되었습니다."})
+        res.status(200).json({ message: "투표가 성공적으로 진행되었습니다." });
     } catch (error) {
         if (error instanceof Error) {
             if (error.message === "NOT_FOUND") {
@@ -107,7 +121,7 @@ const votePost = async (req: AuthRequest<{postId: string}>, res: Response) => {
     }
 };
 
-const cancelVotePost = async (req: AuthRequest<{postId: string}>, res: Response) => {
+const cancelVotePost = async (req: AuthRequest<{ postId: string }>, res: Response) => {
     try {
         if (!req.user) {
             res.status(401).json({ message: "인증되지 않은 사용자입니다." });
@@ -121,7 +135,7 @@ const cancelVotePost = async (req: AuthRequest<{postId: string}>, res: Response)
             return;
         }
         await postService.cancelVotePost(userId, postId);
-        res.status(200).json({ message: "투표가 취소되었습니다."});
+        res.status(200).json({ message: "투표가 취소되었습니다." });
     } catch (error) {
         if (error instanceof Error && error.message === "NOT_VOTED") {
             res.status(404).json({ message: "취소할 투표 내용이 존재하지 않습니다." });
@@ -131,4 +145,11 @@ const cancelVotePost = async (req: AuthRequest<{postId: string}>, res: Response)
     }
 };
 
-export default { getPostsByCategory, createPost, getPostById, votePost, cancelVotePost };
+export default {
+    getRecentPosts,
+    getPostsByCategory,
+    createPost,
+    getPostById,
+    votePost,
+    cancelVotePost,
+};
