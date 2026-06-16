@@ -8,6 +8,18 @@ import { UpdateUserInputType } from "../schemas/user/updateUserSchema.ts";
 import { UpdatePasswordInputType } from "../schemas/user/updatePasswordSchema.ts";
 import { WithdrawUserInputType } from "../schemas/user/witherawUserSchema.ts";
 
+const getMe = async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+        res.status(401).json({ message: "유효하지 않은 사용자이거나 탈퇴한 계정입니다." });
+        return;
+    }
+
+    res.status(200).json({
+        message: "사용자 정보 확인이 완료되었습니다.",
+        data: req.params,
+    });
+};
+
 const createUser = async (req: Request, res: Response) => {
     try {
         const { username, password, name, nickname, email, phoneNumber, birthdate, gender, role } =
@@ -20,7 +32,7 @@ const createUser = async (req: Request, res: Response) => {
             nickname,
             email,
             phoneNumber,
-            birthdate: birthdate? new Date(birthdate): null,
+            birthdate: birthdate ? new Date(birthdate) : null,
             gender,
             role,
         };
@@ -31,24 +43,24 @@ const createUser = async (req: Request, res: Response) => {
         res.status(201).json(newUser);
     } catch (error) {
         if (error instanceof Error) {
-            switch(error.message) {
+            switch (error.message) {
                 case "ALREADY_EXISTS_USERNAME":
-                    res.status(409).json({ message: "이미 사용 중인 아이디입니다"});
+                    res.status(409).json({ message: "이미 사용 중인 아이디입니다" });
                     return;
                 case "ALREADY_EXISTS_EMAIL":
-                    res.status(409).json({ message: "이미 가입된 이메일입니다."});
+                    res.status(409).json({ message: "이미 가입된 이메일입니다." });
                     return;
                 case "ALREADY_EXISTS_NICKNAME":
-                    res.status(409).json({ message: "이미 사용 중인 닉네임입니다."});
+                    res.status(409).json({ message: "이미 사용 중인 닉네임입니다." });
                     return;
                 default:
-                    res.status(500).json({ message: "유저 생성 중 오류가 발생했습니다."});
+                    res.status(500).json({ message: "유저 생성 중 오류가 발생했습니다." });
                     return;
             }
         }
 
         console.log(error);
-        res.status(500).json({message: "유저 생성 중 오류가 발생했습니다."});
+        res.status(500).json({ message: "유저 생성 중 오류가 발생했습니다." });
     }
 };
 
@@ -75,7 +87,7 @@ const login = async (req: Request, res: Response) => {
 const updateUser = async (req: AuthRequest, res: Response) => {
     try {
         if (!req.user) {
-            res.status(401).json({ message: "인증되지 않은 사용자입니다."});
+            res.status(401).json({ message: "인증되지 않은 사용자입니다." });
             return;
         }
         const userId = req.user.id;
@@ -84,9 +96,7 @@ const updateUser = async (req: AuthRequest, res: Response) => {
 
         const result = await userService.updateUser(userId, input);
         res.status(200).json({ message: "사용자 정보를 성공적으로 수정했습니다.", data: result });
-    } catch (error) {
-
-    }
+    } catch (error) {}
 };
 
 const updatePassword = async (req: AuthRequest, res: Response) => {
@@ -158,6 +168,7 @@ const withdrawUser = async (req: AuthRequest, res: Response) => {
 };
 
 export default {
+    getMe,
     createUser,
     login,
     updateUser,
