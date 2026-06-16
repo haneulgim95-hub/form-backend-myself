@@ -153,7 +153,7 @@ const withdrawUser = async (req: AuthRequest, res: Response) => {
             }
         }
         console.log(error);
-        res.status(500).json({ message: "회원 정보 수정 중 서버 에러가 발생했습니다." });
+        res.status(500).json({ message: "회원 탈퇴 중 서버 에러가 발생했습니다." });
     }
 };
 
