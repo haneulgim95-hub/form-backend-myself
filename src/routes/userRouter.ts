@@ -5,11 +5,18 @@ import { validate } from "../middlewares/validate.ts";
 import { loginSchema } from "../schemas/user/loginUser.ts";
 import { updateUserSchema } from "../schemas/user/updateUserSchema.ts";
 import { authenticate } from "../middlewares/auth.ts";
+import { updatePasswordSchema } from "../schemas/user/updatePasswordSchema.ts";
 
 const router = Router();
 
 router.post("/create", validate(createUserSchema), userController.createUser);
 router.post("/login", validate(loginSchema), userController.login);
-router.patch("/update", authenticate, validate(updateUserSchema), );
+router.patch("/update", authenticate, validate(updateUserSchema), userController.updateUser);
+router.patch(
+    "/password",
+    authenticate,
+    validate(updatePasswordSchema),
+    userController.updatePassword,
+);
 
 export default router;

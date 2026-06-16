@@ -5,6 +5,7 @@ import passwordUtil from "../utils/password/passwordUtil.ts";
 import { LoginInputType } from "../schemas/user/loginUser.ts";
 import { AuthRequest } from "../middlewares/auth.ts";
 import { UpdateUserInputType } from "../schemas/user/updateUserSchema.ts";
+import { UpdatePasswordInputType } from "../schemas/user/updatePasswordSchema.ts";
 
 const createUser = async (req: Request, res: Response) => {
     try {
@@ -87,8 +88,43 @@ const updateUser = async (req: AuthRequest, res: Response) => {
     }
 };
 
+const updatePassword = async (req: AuthRequest, res: Response) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ message: "인증되지 않은 사용자입니다." });
+            return;
+        }
+
+        const userId = req.user.id;
+
+        const { prevPassword, password }: UpdatePasswordInputType = req.body;
+
+        await userService.updatePassword(userId, prevPassword, password);
+        res.status(200).json({
+            message: "비밀번호가 성공적으로 변경되었습니다.",
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "USER_NOT_FOUND") {
+                res.status(404).json({
+                    message: "해당 사용자를 찾을 수 없습니다.",
+                });
+                return;
+            } else if (error.message === "INVALID_PASSWORD") {
+                res.status(400).json({
+                    message: "현재 비밀번호가 일치하지 않습니다.",
+                });
+                return;
+            }
+        }
+        console.log(error);
+        res.status(500).json({ message: "서버 에러가 발생했습니다." });
+    }
+};
+
 export default {
     createUser,
     login,
     updateUser,
+    updatePassword,
 };
