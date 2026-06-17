@@ -131,8 +131,47 @@ const getPostById = async (postId: number, userId?: number) => {
         }
     }
 
+    let shouldIncreaseView = false;
+
+    if (userId) {
+        const twentyFourHoursAge = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const recentViewLog = await prisma.postViewLog.findFirst({
+            where: {
+                postId: postId,
+                userId: userId,
+                createdAt: {
+                    gte: twentyFourHoursAge,
+                }
+            }
+        })
+
+        if (!recentViewLog) {
+            shouldIncreaseView = true;
+            await prisma.postViewLog.create({
+                data: {
+                    userId,
+                    postId,
+                },
+            });
+        }
+    } else {
+        shouldIncreaseView = false;
+    }
+
+    if (shouldIncreaseView) {
+        await prisma.post.update({
+            where: {
+                id: postId,
+            },
+            data: {
+                views: post.views + 1,
+            }
+        })
+    }
+
     return {
         ...post,
+        views: shouldIncreaseView? post.views + 1 : post.views,
         vote: {
             option1Count,
             option2Count,

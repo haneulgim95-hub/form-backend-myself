@@ -128,3 +128,12 @@ model Inquiry {
 
   @@index([userId])
 }
+
+model PostViewLog {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userId    Int
+  postId    Int
+
+  @@unique([userId, postId])
+}
