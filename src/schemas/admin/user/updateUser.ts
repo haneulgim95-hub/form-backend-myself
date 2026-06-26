@@ -3,7 +3,7 @@ import { GenderType, RoleType } from "../../../generated/prisma/enums.ts";
 
 export const adminUpdateUserSchema = z.object({
     username: z.string().min(4),
-    password: z.string().min(6),
+    password: z.string().min(6).optional(),
     name: z.string().min(2),
     nickname: z.string().min(2).max(50),
     email: z.email(),
